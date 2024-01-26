@@ -5,17 +5,15 @@ using Base: Fix2
 
 using Flux
 using Zygote
-using ZygoteExtensions: gradient_pro
 
 using Boilerplate
 using Pythonish
 using Aritmetics: mean
+using ZygoteExtensions: gradient_pro
 using Utils: Fix2_more
 
 
 
-loss_grad(loss_fn, Ŷ, Y)     = gradient_pro(Fix2(loss_fn, Y), Ŷ)
-loss_grad(loss_fn, Ŷ, Y, vP) = gradient_pro(Fix2_more(loss_fn, Y), Ŷ, vP)
 
 @inline se(ŷ, Y)         = @. (ŷ - Y) ^ 2 
 @inline se(ŷ, Y, v)      = @. (ŷ - Y) ^ 2 * v
@@ -26,7 +24,6 @@ loss_grad(loss_fn, Ŷ, Y, vP) = gradient_pro(Fix2_more(loss_fn, Y), Ŷ, vP)
 @inline ⎷mse_with_L2(ŷ, Y, vP)     = ⎷mse(ŷ, Y) * (1f0 + L2(vP) * 1f0 * 0.0003f0)
 @inline softmax(ŷ, Y)              = ⎷mse(Flux.softmax(ŷ; dims=3), Y)
 @inline softmax_with_L2(ŷ, Y, vP)  = ⎷mse(Flux.softmax(ŷ; dims=3), Y) * (1f0 + L2(vP) * 1f0 * 0.0003f0)
-
 @inline onehot(ŷ, y) = sum(argmax(ŷ, dims=3) .== argmax(y, dims=3)) / size(ŷ,1)
 @inline onehot_custom(ŷ, y, meta, val) = sum(is_idx_eq_val(val), argmax(ŷ, dims=3) .&& map(is_idx_eq_val(val), argmax(y, dims=3))) ./ sum(map(is_idx_eq_val(val), argmax(y, dims=3)))
 is_idx_eq_val(val) = (idx::CartesianIndex) -> idx[3] === val
@@ -34,6 +31,10 @@ is_idx_eq_val(val) = (idx::CartesianIndex) -> idx[3] === val
 
 L1(v) = mean(abs.(v))
 L2(v) = mean(v .^ 2)
+
+
+loss_grad(loss_fn, Ŷ, Y)     = gradient_pro(Fix2(loss_fn, Y), Ŷ)
+loss_grad(loss_fn, Ŷ, Y, vP) = gradient_pro(Fix2_more(loss_fn, Y), Ŷ, vP)
 
 
 # loss_mse(Ŷ, Y, vP) = begin
@@ -124,11 +125,9 @@ end
 	gradŶ[:,:,i] .= grad[:,:,row,col]
 end
 mask_rev_assign!(gradŶ, grad, rowcols, meta) = nothing
-	
-
-include("Print.jl")
 
 
+include("Untracked.jl")
 
 
 end # module Losses
