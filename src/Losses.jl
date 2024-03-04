@@ -8,7 +8,7 @@ using Zygote
 
 using Boilerplate
 using Pythonish
-using Aritmetics: mean
+using Arithmetics: mean
 using ZygoteExtensions: gradient_pro
 using Utils: Fix2_more
 
